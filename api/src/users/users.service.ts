@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { RedisService } from "src/redis/redis.service";
-import { CreateUserDTO } from "./dto";
+import { CreateUserDTO, UpdateUserDTO } from "./dto";
 import * as ag from "argon2";
 
 @Injectable()
@@ -106,6 +106,6 @@ export class UsersService {
     return { error: false, data: newUser };
   }
 
-  async update_user() {}
+  async update_user(data: UpdateUserDTO) {}
   async delete_user() {}
 }
