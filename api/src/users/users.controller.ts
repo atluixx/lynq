@@ -1,7 +1,45 @@
-import { Controller } from '@nestjs/common';
-import { UsersService } from './users.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from "@nestjs/common";
+import { UsersService } from "./users.service";
+import { CreateUserDTO } from "./dto";
 
-@Controller('users')
+@Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get(":name")
+  async get_user(@Param("name") name: string) {
+    return this.usersService.get_user(name);
+  }
+
+  @Get()
+  async get_users(@Query("take") take?: string, @Query("skip") skip?: string) {
+    const takeNum = take ? parseInt(take, 10) : undefined;
+    const skipNum = skip ? parseInt(skip, 10) : undefined;
+
+    return this.usersService.get_users(skipNum, takeNum);
+  }
+
+  @Post()
+  async create_user(@Body() data: CreateUserDTO) {
+    return this.usersService.create_user(data);
+  }
+
+  @Patch()
+  async update_user() {
+    return this.usersService.update_user();
+  }
+
+  @Delete()
+  async delete_user() {
+    return this.usersService.delete_user();
+  }
 }
