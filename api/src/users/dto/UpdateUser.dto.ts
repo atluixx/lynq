@@ -7,7 +7,7 @@ import {
   IsEmail,
 } from "class-validator";
 
-export class CreateUserDTO {
+export class UpdateUserDTO {
   @IsString()
   @MinLength(3)
   @MaxLength(30)
