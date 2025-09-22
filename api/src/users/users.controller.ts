@@ -33,13 +33,13 @@ export class UsersController {
     return this.usersService.create_user(data);
   }
 
-  @Patch()
-  async update_user(@Body() data: UpdateUserDTO) {
-    return this.usersService.update_user(data);
+  @Patch(":name")
+  async update_user(@Body() data: UpdateUserDTO, @Param("name") name: string) {
+    return this.usersService.update_user(name, data);
   }
 
-  @Delete()
-  async delete_user() {
-    return this.usersService.delete_user();
+  @Delete(":name")
+  async delete_user(@Param("name") name: string) {
+    return this.usersService.delete_user(name);
   }
 }
