@@ -51,3 +51,11 @@ model Analytics {
   link_id String
   link    Link   @relation(fields: [link_id], references: [id])
 }
+
+model Api {
+  id              String    @id @default(cuid())
+  key             String    @unique
+  expiration_time DateTime?
+  active          Boolean   @default(true)
+  created_at      DateTime  @default(now())
+}
