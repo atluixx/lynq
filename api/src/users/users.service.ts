@@ -39,6 +39,41 @@ export class UsersService {
     }
   }
 
+  async get_links(name: string) {
+    try {
+      if (!name) {
+        return { error: true, data: { messages: ["name is required"] } };
+      }
+
+      const cacheKey = `user:${name}`;
+      const cached = await this.redis.get(cacheKey);
+
+      if (cached) {
+        const data = JSON.parse(cached);
+        return { error: false, data };
+      }
+
+      const links = await this.prisma.user.findUnique({
+        where: { username: name },
+        select: { links: true },
+      });
+
+      if (!links) {
+        return { error: true, data: { messages: ["user not found"] } };
+      }
+
+      await this.redis.set(cacheKey, JSON.stringify(links), 60);
+
+      return { error: false, data: links };
+    } catch (error) {
+      this.logger.error("Error in get_links", error.stack);
+      return {
+        error: true,
+        data: { messages: ["could not fetch user links"] },
+      };
+    }
+  }
+
   async get_user(name: string) {
     try {
       if (!name) {
@@ -115,7 +150,25 @@ export class UsersService {
   async update_user(name: string, data: UpdateUserDTO) {
     try {
       const updated_user = await this.prisma.$transaction(async (tx) => {
-        const payload: any = { ...data };
+        const { links, ...rest } = data;
+
+        const payload: any = {
+          ...rest,
+          ...(links
+            ? {
+                links: {
+                  create: links.map((link) => ({
+                    title: link.title,
+                    url: link.url,
+                    is_active: link.is_active ?? true,
+                    order: link.order ?? 0,
+                    expires_at: link.expires_at ?? null,
+                    max_clicks: link.max_clicks ?? null,
+                  })),
+                },
+              }
+            : {}),
+        };
 
         return tx.user.update({
           where: { username: name },
@@ -124,7 +177,9 @@ export class UsersService {
         });
       });
 
-      await this.redis.del(`user:${data.username}`);
+      if (data.username) {
+        await this.redis.del(`user:${data.username}`);
+      }
 
       return {
         error: false,

@@ -18,6 +18,12 @@ import { PrismaService } from "src/prisma/prisma.service";
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get(":name/links")
+  @UseGuards(Factory(["users:read"]))
+  async get_links(@Param("name") name: string) {
+    return this.usersService.get_links(name);
+  }
+
   @Get(":name")
   @UseGuards(Factory(["users:read"]))
   async get_user(@Param("name") name: string) {
