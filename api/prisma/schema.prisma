@@ -54,8 +54,10 @@ model Analytics {
 
 model Api {
   id              String    @id @default(cuid())
-  key             String    @unique
+  key_hash        String    @unique
   expiration_time DateTime?
   active          Boolean   @default(true)
-  created_at      DateTime  @default(now())
+  permissions     Json      @default("[\"users:create\"]")
+
+  created_at DateTime @default(now())
 }
